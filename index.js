@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5500;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 app.use(cors());
 app.use(express.json());
@@ -35,6 +35,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+
         app.post("/users", async (req, res) => {
             console.log("hitting");
             const user = req.body;
@@ -42,6 +43,14 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         });
+
+        app.delete("/users/:id", async (req, res) => {
+            const id = req.params.id;
+            console.log("deleting", id);
+            const query = { _id: new ObjectId(id) };
+            const result = await usersCollection.deleteOne(query);
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
